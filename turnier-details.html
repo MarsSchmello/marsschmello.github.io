@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turnier Details | SynapseX</title>
+    <link rel="icon" type="image/jpeg" href="image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .stage-title { font-size: 1.5rem; color: white; border-bottom: 2px solid #8a2be2; padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; display: inline-block; }
+        
+        /* Gruppenphase */
+        .groups-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .group-card { background: #15151a; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; }
+        .group-header { background: #2a2a35; padding: 10px; font-weight: bold; color: white; text-align: center; }
+        .group-table { width: 100%; border-collapse: collapse; text-align: center; color: white; font-size: 0.9rem; }
+        .group-table th { padding: 10px; color: #a0a0b0; border-bottom: 1px solid #2a2a35; }
+        .group-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .team-col { text-align: left; font-weight: bold; }
+        .advancing td { background: rgba(46, 213, 115, 0.05); border-left: 3px solid #2ed573; }
+
+        /* Bracket Design */
+        .bracket-scroll { overflow-x: auto; padding-bottom: 20px; }
+        .bracket-container { display: flex; gap: 40px; min-width: 900px; margin-bottom: 40px; }
+        .bracket-col { display: flex; flex-direction: column; justify-content: space-around; gap: 15px; flex: 1; }
+        .round-title { text-align: center; color: #a0a0b0; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        
+        .match { background: #15151a; border: 1px solid #2a2a35; border-radius: 6px; overflow: hidden; position: relative; }
+        .grand-final { border-color: #8a2be2; box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+        .team-row { display: flex; justify-content: space-between; padding: 8px 12px; color: white; border-bottom: 1px solid #2a2a35; font-size: 0.9rem; }
+        .team-row:last-child { border-bottom: none; }
+        .team-row.winner { background: rgba(46, 213, 115, 0.1); color: #2ed573; font-weight: bold; }
+        .team-row.loser { color: #666; }
+        .score { font-weight: bold; }
+
+        /* Stylischer Zurück-Button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #a0a0b0;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .back-btn:hover {
+            background: rgba(138, 43, 226, 0.15);
+            color: white;
+            border-color: #8a2be2;
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section style="min-height: auto; padding-top: 80px;">
+            
+            <a href="turniere.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Zurück zur Übersicht</a>
+            
+            <h1 class="section-title" id="page-title">Turnier <span style="background: linear-gradient(135deg, #007bff, #8a2be2); background-clip: text; -webkit-text-fill-color: transparent;">Details</span></h1>
+            <p class="text-block">Hier findest du alle Live-Brackets der Gruppenphasen sowie des Upper- und Lower-Brackets für dieses Turnier.</p>
+
+            <h2 class="stage-title">Gruppenphase</h2>
+            <div class="groups-grid" id="groups-container"></div>
+
+            <h2 class="stage-title">Upper Bracket</h2>
+            <div class="bracket-scroll">
+                <div class="bracket-container" id="upper-bracket"></div>
+            </div>
+
+            <h2 class="stage-title">Lower Bracket & Grand Final</h2>
+            <div class="bracket-scroll">
+                <div class="bracket-container" id="lower-bracket"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        loadSidebar('');
+
+        // ID aus der URL auslesen (z.B. ?id=0)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tourneyId = urlParams.get('id') || 0; 
+
+        // Einfacher Abruf für lokale Server & Webserver
+        fetch('turnier-daten.json')
+            .then(res => {
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return res.json();
+                } else {
+                    throw new Error("Kein JSON gefunden.");
+                }
+            })
+            .then(data => {
+                const tourney = data.tournaments[tourneyId];
+                
+                if(!tourney) {
+                    document.getElementById('page-title').innerText = "Turnier nicht gefunden";
+                    return;
+                }
+
+                // Titel der Seite anpassen
+                document.getElementById('page-title').innerHTML = `${tourney.name} <span style="background: linear-gradient(135deg, #007bff, #8a2be2); background-clip: text; -webkit-text-fill-color: transparent;">Live</span>`;
+
+                renderGroups(tourney.gruppen);
+                
+                const m = tourney.matches;
+                document.getElementById('upper-bracket').innerHTML = `
+                    <div class="bracket-col">
+                        <div class="round-title">Viertelfinale</div>
+                        ${createMatchHtml(m.ub_vf_1)}
+                        ${createMatchHtml(m.ub_vf_2)}
+                        ${createMatchHtml(m.ub_vf_3)}
+                        ${createMatchHtml(m.ub_vf_4)}
+                    </div>
+                    <div class="bracket-col">
+                        <div class="round-title">Halbfinale</div>
+                        ${createMatchHtml(m.ub_hf_1)}
+                        ${createMatchHtml(m.ub_hf_2)}
+                    </div>
+                    <div class="bracket-col" style="justify-content: center;">
+                        <div class="round-title">Upper Bracket Final</div>
+                        ${createMatchHtml(m.ub_fin)}
+                    </div>
+                `;
+
+                document.getElementById('lower-bracket').innerHTML = `
+                    <div class="bracket-col">
+                        <div class="round-title">Runde 1</div>
+                        ${createMatchHtml(m.lb_r1_1)}
+                        ${createMatchHtml(m.lb_r1_2)}
+                    </div>
+                    <div class="bracket-col">
+                        <div class="round-title">Runde 2</div>
+                        ${createMatchHtml(m.lb_r2_1)}
+                        ${createMatchHtml(m.lb_r2_2)}
+                    </div>
+                    <div class="bracket-col" style="justify-content: center;">
+                        <div class="round-title">Halbfinale</div>
+                        ${createMatchHtml(m.lb_hf)}
+                    </div>
+                    <div class="bracket-col" style="justify-content: center;">
+                        <div class="round-title">Lower Bracket Final</div>
+                        ${createMatchHtml(m.lb_fin)}
+                    </div>
+                    <div class="bracket-col" style="justify-content: center;">
+                        <div class="round-title" style="color: #8a2be2;">Grand Final</div>
+                        ${createMatchHtml(m.grand_final, true)}
+                    </div>
+                `;
+            }).catch(err => {
+                console.error("Ladefehler:", err);
+            });
+
+        function renderGroups(gruppen) {
+            const container = document.getElementById('groups-container');
+            for(const [groupName, teams] of Object.entries(gruppen)) {
+                let html = `
+                    <div class="group-card">
+                        <div class="group-header">Gruppe ${groupName}</div>
+                        <table class="group-table">
+                            <tr><th class="team-col">Team</th><th>S</th><th>N</th><th>RD</th><th>Pkt</th></tr>`;
+                
+                teams.forEach(team => {
+                    const rowClass = team.advancing ? 'advancing' : '';
+                    html += `
+                        <tr class="${rowClass}">
+                            <td class="team-col">${team.team ? team.team : 'TBA'}</td>
+                            <td>${team.s}</td>
+                            <td>${team.n}</td>
+                            <td>${team.rd}</td>
+                            <td><strong>${team.pkt}</strong></td>
+                        </tr>`;
+                });
+                
+                html += `</table></div>`;
+                container.innerHTML += html;
+            }
+        }
+
+        // NEU: Logik für leere Felder (TBA und -)
+        function createMatchHtml(matchData, isGrandFinal = false) {
+            if(!matchData) return "";
+            
+            let t1Class = matchData.winner === 1 ? "winner" : (matchData.winner === 2 ? "loser" : "");
+            let t2Class = matchData.winner === 2 ? "winner" : (matchData.winner === 1 ? "loser" : "");
+            let extraClass = isGrandFinal ? "grand-final" : "";
+
+            // Wenn das Feld leer ist, zeige "TBA" an. Sonst den Teamnamen.
+            let team1Name = matchData.team1 ? matchData.team1 : "TBA";
+            let team2Name = matchData.team2 ? matchData.team2 : "TBA";
+            
+            // Wenn kein Score eingetragen ist, zeige einen Strich "-" an.
+            let score1 = matchData.score1 !== "" ? matchData.score1 : "-";
+            let score2 = matchData.score2 !== "" ? matchData.score2 : "-";
+
+            return `
+                <div class="match ${extraClass}">
+                    <div class="team-row ${t1Class}">
+                        <span>${team1Name}</span>
+                        <span class="score">${score1}</span>
+                    </div>
+                    <div class="team-row ${t2Class}">
+                        <span>${team2Name}</span>
+                        <span class="score">${score2}</span>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

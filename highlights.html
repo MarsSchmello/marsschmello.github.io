@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historie & Ruhmeshalle | SynapseX</title>
+    <link rel="icon" type="image/jpeg" href="image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="dein-video.mp4" type="video/mp4"> 
+    </video>
+    <div id="video-overlay"></div>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        
+        <section style="min-height: auto; padding-top: 80px;">
+            <h1 class="section-title">SynapseX <span style="background: linear-gradient(135deg, #00e5ff, #9d4edd); background-clip: text; -webkit-text-fill-color: transparent;">Historie</span></h1>
+            <p class="text-block">Unsere größten Siege, krassesten Clips und unvergessliche Momente aus den Ligen. Hier verewigen wir die Legenden von SynapseX.</p>
+
+            <h2 style="font-size: 2rem; margin-top: 60px; margin-bottom: 30px; text-align: left; color: var(--text-main);">Unsere letzten Erfolge</h2>
+
+            <div class="tournament-grid">
+                <div class="tournament-card first-place">
+                    <div class="placement-badge"><i class="fa-solid fa-trophy" style="color: #ffc107;"></i> 1. Platz</div>
+                    <h3>DESL Challenger League 2025</h3>
+                    <p>Team Alpha konnte sich im Finale souverän mit 3:1 Maps durchsetzen und sichert sich das Preisgeld sowie den Aufstieg.</p>
+                </div>
+
+                <div class="tournament-card second-place">
+                    <div class="placement-badge"><i class="fa-solid fa-medal" style="color: #cbd5e1;"></i> 2. Platz</div>
+                    <h3>DACH Winter Cup</h3>
+                    <p>Starke Leistung von Team Omega. Nach einem knappen Finale im Overtime-Matchball holen sie den zweiten Platz.</p>
+                </div>
+                
+                <div class="tournament-card first-place">
+                    <div class="placement-badge"><i class="fa-solid fa-trophy" style="color: #ffc107;"></i> 1. Platz</div>
+                    <h3>SynapseX Invitational 2024</h3>
+                    <p>Unser eigenes Turnier! Team Alpha dominiert das Upper Bracket und gewinnt das Grand Final ohne Map-Verlust.</p>
+                </div>
+            </div>
+
+            <h2 style="font-size: 2rem; margin-top: 60px; margin-bottom: 30px; text-align: left; color: var(--text-main);">Clips</h2>
+
+            <div class="fame-grid">
+                <div class="fame-card">
+                    <div class="video-container">
+                        <video controls playsinline preload="metadata">
+                            <source src="image/Clip1.mp4" type="video/mp4">
+                            Dein Browser unterstützt das Video-Tag nicht.
+                        </video>
+                    </div>
+                    <div class="fame-info">
+                        <h3>Der 1v4 Clutch im Finale</h3>
+                        <p>Ein unvergesslicher Moment, der uns den Sieg in der Overtime gesichert hat.</p>
+                    </div>
+                </div>
+
+                <div class="fame-card">
+                    <div class="video-container">
+                        <video controls playsinline preload="metadata">
+                            <source src="image/Clip2" type="video/mp4">
+                            Dein Browser unterstützt das Video-Tag nicht.
+                        </video>
+                    </div>
+                    <div class="fame-info">
+                        <h3>Best of Team Alpha</h3>
+                        <p>Die dominantesten Szenen unserer Spieler aus der vergangenen Season.</p>
+                    </div>
+                </div>
+                
+                <div class="fame-card">
+                    <div class="video-container">
+                        <video controls playsinline preload="metadata">
+                            <source src="image/Clip3" type="video/mp4">
+                            Dein Browser unterstützt das Video-Tag nicht.
+                        </video>
+                    </div>
+                    <div class="fame-info">
+                        <h3>Offizielles Scrim Highlight</h3>
+                        <p>Taktische Meisterleistung und perfekte Kommunikation gegen Team G2.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Sidebar laden
+        if (typeof loadSidebar === "function") {
+            loadSidebar('');
+        }
+    </script>
+</body>
+</html>

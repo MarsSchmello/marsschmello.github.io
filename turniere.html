@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turniere | SynapseX</title>
+    <link rel="icon" type="image/jpeg" href="image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tourney-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 40px; }
+        .t-card { background: #15151a; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; }
+        .t-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(138, 43, 226, 0.2); }
+        .t-image { width: 100%; height: 160px; object-fit: cover; background: url('image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg') center/cover; border-bottom: 2px solid #8a2be2; }
+        .t-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .t-title { font-size: 1.3rem; color: white; font-weight: 700; margin-bottom: 5px; }
+        .t-subtitle { color: #a0a0b0; font-size: 0.9rem; margin-bottom: 20px; }
+        .t-info-row { display: flex; align-items: center; color: #d0d0d0; font-size: 0.95rem; margin-bottom: 12px; }
+        .t-info-row i { width: 25px; color: #8a2be2; text-align: left; }
+        
+        .t-status-badge { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-top: 10px; margin-bottom: 25px; width: fit-content; }
+        .status-live { background: rgba(138, 43, 226, 0.1); color: #b967ff; border: 1px solid rgba(138, 43, 226, 0.3); }
+        .status-open { background: rgba(46, 213, 115, 0.1); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
+        .status-closed { background: rgba(255, 71, 87, 0.1); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+        .status-live .status-dot { background: #b967ff; box-shadow: 0 0 8px #b967ff; animation: pulse 1.5s infinite; }
+        .status-open .status-dot { background: #2ed573; box-shadow: 0 0 8px #2ed573; }
+        .status-closed .status-dot { background: #ff4757; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+        
+        .t-btn { display: block; width: 100%; padding: 12px; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.3s; border: none; cursor: pointer; margin-top: auto; }
+        .btn-live { background: linear-gradient(135deg, #007bff, #8a2be2); color: white; }
+        .btn-live:hover { box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4); transform: translateY(-2px); }
+        .btn-apply { background: transparent; color: white; border: 1px solid #2ed573; }
+        .btn-apply:hover { background: rgba(46, 213, 115, 0.1); }
+        .btn-closed { background: #2a2a35; color: #606070; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section style="min-height: auto; padding-top: 80px;">
+            <h1 class="section-title">Anstehende <span style="background: linear-gradient(135deg, #007bff, #8a2be2); background-clip: text; -webkit-text-fill-color: transparent;">Turniere</span></h1>
+            <p class="text-block">Melde dein Team für kommende Community-Turniere an oder verfolge unsere laufenden Events live im Bracket.</p>
+
+            <div class="tourney-grid" id="public-cards-container">
+                <p style="color: #a0a0b0;">Lade Turniere...</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        loadSidebar('');
+
+        // Cache-Buster hinzugefügt: Zwingt den Browser immer die NEUESTE Version zu laden
+        const url = 'turnier-daten.json?v=' + new Date().getTime();
+
+        fetch(url, { cache: "no-store" })
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('public-cards-container');
+                container.innerHTML = ''; 
+
+                const karten = data.tournaments || [];
+
+                if(karten.length === 0) {
+                    container.innerHTML = '<p style="color: #a0a0b0;">Aktuell sind keine Turniere eingetragen.</p>';
+                    return;
+                }
+
+                karten.forEach((card, index) => {
+                    let statusClass, statusText, btnClass, btnText, btnLink;
+                    
+                    if (card.status === 'live') {
+                        statusClass = 'status-live';
+                        statusText = 'Turnier läuft gerade';
+                        btnClass = 'btn-live';
+                        btnText = '<i class="fa-solid fa-sitemap" style="margin-right: 8px;"></i> Zu den Brackets';
+                        // GIBT DIE ID DES TURNIERS IN DER URL WEITER
+                        btnLink = `href="turnier-details.html?id=${index}"`; 
+                    } else if (card.status === 'open') {
+                        statusClass = 'status-open';
+                        statusText = 'Anmeldung offen';
+                        btnClass = 'btn-apply';
+                        btnText = 'Jetzt Bewerben';
+                        btnLink = `href="https://discord.gg/3BuS9w4xru" target="_blank"`;
+                    } else {
+                        statusClass = 'status-closed';
+                        statusText = 'Turnier beendet / Voll';
+                        btnClass = 'btn-closed';
+                        btnText = 'Geschlossen';
+                        btnLink = 'disabled style="cursor:not-allowed;"';
+                    }
+
+                    const cardHTML = `
+                        <div class="t-card">
+                            <div class="t-image" style="${card.status === 'closed' ? 'filter: grayscale(100%);' : ''}"></div>
+                            <div class="t-content">
+                                <div class="t-title">${card.name || 'Neues Turnier'}</div>
+                                <div class="t-subtitle">${card.game || ''}</div>
+                                
+                                <div class="t-info-row">
+                                    <i class="fa-solid fa-trophy"></i>
+                                    <span>${card.prize || '-'}</span>
+                                </div>
+                                <div class="t-info-row">
+                                    <i class="fa-solid fa-users"></i>
+                                    <span>${card.teams || '-'}</span>
+                                </div>
+
+                                <div class="t-status-badge ${statusClass}">
+                                    <div class="status-dot"></div>
+                                    ${statusText}
+                                </div>
+
+                                <a ${btnLink} class="t-btn ${btnClass}">${btnText}</a>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHTML;
+                });
+            })
+            .catch(err => {
+                document.getElementById('public-cards-container').innerHTML = '<p style="color: red;">Es wurden noch keine Turniere angelegt oder die Datei-Struktur ist fehlerhaft.</p>';
+                console.error("Ladefehler:", err);
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ergebnisse | SynapseX</title>
+    <link rel="icon" type="image/jpeg" href="image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        
+        <section style="min-height: auto; padding-top: 80px;">
+            <h1 class="section-title">Match <span style="background: linear-gradient(135deg, #007bff, #8a2be2); background-clip: text; -webkit-text-fill-color: transparent;">Ergebnisse</span></h1>
+            <p class="text-block">Verfolge die neuesten Ergebnisse unserer R6S Teams in Ligen, Turnieren und offiziellen Scrims.</p>
+
+            <h2 style="font-size: 1.8rem; margin-top: 40px; margin-bottom: 20px;">Letzte Spiele</h2>
+            <div class="match-grid">
+                
+                <div class="match-card win">
+                    <div class="match-header">
+                        <span class="match-date">24. Okt 2025</span>
+                        <span class="match-league">DESL Challenger League</span>
+                    </div>
+                    <div class="match-body">
+                        <div class="team-side">
+                            <span class="team-name">SynapseX Alpha</span>
+                        </div>
+                        <div class="score-box">
+                            <span class="score-number">7</span>
+                            <span class="score-divider">:</span>
+                            <span class="score-number">5</span>
+                        </div>
+                        <div class="team-side right">
+                            <span class="team-name">Gegner Team A</span>
+                        </div>
+                    </div>
+                    <div class="match-footer">Sieg auf Clubhouse</div>
+                </div>
+
+                <div class="match-card loss">
+                    <div class="match-header">
+                        <span class="match-date">20. Okt 2025</span>
+                        <span class="match-league">R6S Community Cup</span>
+                    </div>
+                    <div class="match-body">
+                        <div class="team-side">
+                            <span class="team-name">SynapseX Omega</span>
+                        </div>
+                        <div class="score-box">
+                            <span class="score-number">4</span>
+                            <span class="score-divider">:</span>
+                            <span class="score-number">7</span>
+                        </div>
+                        <div class="team-side right">
+                            <span class="team-name">Gegner Team B</span>
+                        </div>
+                    </div>
+                    <div class="match-footer">Niederlage auf Oregon</div>
+                </div>
+
+                <div class="match-card win">
+                    <div class="match-header">
+                        <span class="match-date">18. Okt 2025</span>
+                        <span class="match-league">Offizielles Scrim</span>
+                    </div>
+                    <div class="match-body">
+                        <div class="team-side">
+                            <span class="team-name">SynapseX Beta</span>
+                        </div>
+                        <div class="score-box">
+                            <span class="score-number">2</span>
+                            <span class="score-divider">:</span>
+                            <span class="score-number">0</span>
+                        </div>
+                        <div class="team-side right">
+                            <span class="team-name">Gegner Team C</span>
+                        </div>
+                    </div>
+                    <div class="match-footer">Map-Vorteil (BO3)</div>
+                </div>
+
+            </div>
+
+            
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        loadSidebar('');
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Turnier Admin | SynapseX</title>
+    <link rel="icon" type="image/jpeg" href="../image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body { background: #0f0f13; color: white; padding: 20px; font-family: sans-serif; }
+        h1, h2, h3 { color: #8a2be2; margin-top: 20px; margin-bottom: 15px; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .card { background: #15151a; border: 1px solid #2a2a35; padding: 20px; border-radius: 8px; position: relative; }
+        
+        .card-row { display: flex; flex-direction: column; margin-bottom: 10px; }
+        .card-row label { font-size: 0.8rem; color: #a0a0b0; margin-bottom: 3px; font-weight: bold; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .delete-btn:hover { background: #c82333; transform: scale(1.1); }
+        
+        /* Bracket Editor Fokus */
+        .edit-bracket-btn { background: #2a2a35; color: #b967ff; border: 1px solid #8a2be2; padding: 10px; border-radius: 4px; cursor: pointer; margin-top: 15px; font-weight: bold; transition: 0.3s; }
+        .edit-bracket-btn:hover { background: #8a2be2; color: white; }
+
+        .group-grid-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1.2fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .group-header-row { font-size: 0.85rem; color: #a0a0b0; font-weight: bold; text-align: center; padding-bottom: 8px; border-bottom: 1px solid #2a2a35; margin-bottom: 15px; }
+        .group-header-row span:first-child { text-align: left; }
+        .group-grid-row input { width: 100%; box-sizing: border-box; text-align: center; }
+        .group-grid-row input.t-name { text-align: left; }
+        .group-grid-row input[type="checkbox"] { width: 18px; height: 18px; margin: 0 auto; cursor: pointer; }
+
+        .match-card { background: #1a1a24; padding: 15px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid #007bff; }
+        .bracket-match-row { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; margin-bottom: 8px; }
+
+        input[type="text"], input[type="number"], select { background: rgba(255,255,255,0.05); border: 1px solid #2a2a35; color: white; padding: 8px 10px; border-radius: 4px; transition: 0.3s; font-family: inherit; }
+        input:focus, select:focus { border-color: #8a2be2; outline: none; background: rgba(0,0,0,0.5); }
+
+        .btn { background: linear-gradient(135deg, #007bff, #8a2be2); color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; position: sticky; bottom: 20px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8); transition: 0.3s; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(138,43,226,0.6); }
+        .add-btn { background: transparent; border: 2px dashed #007bff; color: #007bff; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 40px; transition: 0.3s; font-size: 1rem; }
+        .add-btn:hover { background: rgba(0, 123, 255, 0.1); }
+    </style>
+</head>
+<body>
+    
+    <div id="sidebar-container"></div>
+
+    <main class="main-content" style="padding-top: 60px;">
+        <h1 class="section-title">Live <span style="background: linear-gradient(135deg, #007bff, #8a2be2); background-clip: text; -webkit-text-fill-color: transparent;">Editor</span></h1>
+        
+        <h2 class="stage-title">Turnier Ankündigungen</h2>
+        <p style="color: #a0a0b0; font-size: 0.9rem; margin-bottom: 20px;">Hier verwaltest du alle Turniere. Jedes Turnier hat sein eigenes Bracket. Klicke auf "Bracket bearbeiten", um den Baum des jeweiligen Turniers zu öffnen.</p>
+        
+        <div class="grid-container" id="cards-editor"></div>
+        <button class="add-btn" onclick="addTournament()">+ Neues Turnier (mit neuem Bracket) hinzufügen</button>
+
+        <hr style="border: 1px solid #2a2a35; margin: 40px 0;">
+
+        <div id="bracket-editor-section" style="display: none; padding-bottom: 60px;">
+            <h2 class="stage-title" id="editor-title" style="color: #007bff;">Bracket Editor</h2>
+            <p style="color: #a0a0b0; font-size: 0.9rem; margin-bottom: 20px;">Du bearbeitest gerade den Baum für ein spezifisches Turnier.</p>
+            
+            <h3 style="color: white; margin-top: 30px;">Gruppenphase</h3>
+            <div class="grid-container" id="groups-editor"></div>
+
+            <h3 style="color: white; margin-top: 30px;">Upper Bracket</h3>
+            <div class="grid-container" id="ub-editor"></div>
+
+            <h3 style="color: white; margin-top: 30px;">Lower Bracket & Grand Final</h3>
+            <div class="grid-container" id="lb-editor"></div>
+        </div>
+
+        <button class="btn" onclick="saveData()" id="saveBtn">💾 Alles Speichern & Live schalten</button>
+    </main>
+
+    <script src="../script.js"></script>
+    <script>
+        loadSidebar('../');
+
+        let tData = { tournaments: [] };
+        let activeTournamentIndex = null;
+
+        // Hilfsfunktionen um leere Strukturen zu generieren
+        function generateEmptyGroups() {
+            const groups = {};
+            ['A', 'B', 'C', 'D'].forEach(g => {
+                groups[g] = [];
+                for(let i=0; i<4; i++) groups[g].push({team:"", s:0, n:0, rd:"0", pkt:0, advancing:false});
+            });
+            return groups;
+        }
+
+        function generateEmptyMatches() {
+            const matches = {};
+            const keys = ['ub_vf_1', 'ub_vf_2', 'ub_vf_3', 'ub_vf_4', 'ub_hf_1', 'ub_hf_2', 'ub_fin', 'lb_r1_1', 'lb_r1_2', 'lb_r2_1', 'lb_r2_2', 'lb_hf', 'lb_fin', 'grand_final'];
+            keys.forEach(k => { matches[k] = { team1: "", score1: "", team2: "", score2: "", winner: 0 }; });
+            return matches;
+        }
+
+        // Daten laden
+        fetch('../turnier-daten.json')
+            .then(res => res.json())
+            .then(data => {
+                if (data.tournaments) {
+                    tData = data;
+                } else {
+                    // Fallback, falls Datei leer ist
+                    tData = { tournaments: [] };
+                }
+                renderCards();
+            });
+
+        // 1. KARTEN RENDERN
+        function renderCards() {
+            const container = document.getElementById('cards-editor');
+            container.innerHTML = '';
+            
+            tData.tournaments.forEach((tourney, i) => {
+                container.innerHTML += `
+                    <div class="card" style="border-left: 4px solid #8a2be2;">
+                        <button class="delete-btn" onclick="removeTournament(${i})" title="Turnier komplett löschen"><i class="fa-solid fa-trash"></i></button>
+                        <h3 style="margin-top: 0; margin-bottom: 20px; color: white;">Turnier #${i+1}</h3>
+                        
+                        <div class="card-row">
+                            <label>Turnier Name</label>
+                            <input type="text" value="${tourney.name || ''}" onchange="updateTournament(${i}, 'name', this.value)">
+                        </div>
+                        <div class="card-row">
+                            <label>Spiel & Modus</label>
+                            <input type="text" value="${tourney.game || ''}" onchange="updateTournament(${i}, 'game', this.value)">
+                        </div>
+                        <div class="card-row">
+                            <label>Teams & Plätze</label>
+                            <input type="text" value="${tourney.teams || ''}" onchange="updateTournament(${i}, 'teams', this.value)">
+                        </div>
+                        <div class="card-row">
+                            <label>Preisgeld / Info</label>
+                            <input type="text" value="${tourney.prize || ''}" onchange="updateTournament(${i}, 'prize', this.value)">
+                        </div>
+                        <div class="card-row" style="margin-top: 10px;">
+                            <label>Status</label>
+                            <select onchange="updateTournament(${i}, 'status', this.value)" style="padding: 10px; font-weight: bold;">
+                                <option value="live" ${tourney.status === 'live' ? 'selected' : ''}>LIVE (Leitet zum Bracket weiter)</option>
+                                <option value="open" ${tourney.status === 'open' ? 'selected' : ''}>OFFEN (Leitet zur E-Mail Bewerbung weiter)</option>
+                                <option value="closed" ${tourney.status === 'closed' ? 'selected' : ''}>GESCHLOSSEN</option>
+                            </select>
+                        </div>
+                        
+                        <button class="edit-bracket-btn" onclick="openBracketEditor(${i})">⚙️ Bracket & Gruppen bearbeiten</button>
+                    </div>
+                `;
+            });
+        }
+
+        function addTournament() {
+            tData.tournaments.push({
+                name: "Neues Turnier",
+                game: "Rainbow Six Siege",
+                teams: "0 / 16 Teams",
+                prize: "Preisgeld ausstehend",
+                status: "open",
+                gruppen: generateEmptyGroups(),
+                matches: generateEmptyMatches()
+            });
+            renderCards();
+        }
+
+        function removeTournament(index) {
+            if(confirm("ACHTUNG! Willst du dieses Turnier inkl. ALLER Bracket-Daten wirklich löschen?")) {
+                tData.tournaments.splice(index, 1);
+                document.getElementById('bracket-editor-section').style.display = 'none';
+                renderCards();
+            }
+        }
+
+        function updateTournament(index, field, value) {
+            tData.tournaments[index][field] = value;
+            if(activeTournamentIndex === index && field === 'name') {
+                document.getElementById('editor-title').innerText = "Bracket Editor: " + value;
+            }
+        }
+
+        // 2. BRACKET EDITOR ÖFFNEN
+        function openBracketEditor(index) {
+            activeTournamentIndex = index;
+            const tourney = tData.tournaments[index];
+            
+            document.getElementById('bracket-editor-section').style.display = 'block';
+            document.getElementById('editor-title').innerText = "Bracket Editor: " + tourney.name;
+
+            // Sicherstellen, dass die Strukturen existieren (Rückwärtskompatibilität)
+            if(!tourney.gruppen) tourney.gruppen = generateEmptyGroups();
+            if(!tourney.matches) tourney.matches = generateEmptyMatches();
+
+            renderGroups();
+            renderBracket('ub-editor', ['ub_vf_1', 'ub_vf_2', 'ub_vf_3', 'ub_vf_4', 'ub_hf_1', 'ub_hf_2', 'ub_fin']);
+            renderBracket('lb-editor', ['lb_r1_1', 'lb_r1_2', 'lb_r2_1', 'lb_r2_2', 'lb_hf', 'lb_fin', 'grand_final']);
+
+            // Scroll nach unten zum Editor
+            document.getElementById('bracket-editor-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderGroups() {
+            const container = document.getElementById('groups-editor');
+            container.innerHTML = '';
+            const gruppen = tData.tournaments[activeTournamentIndex].gruppen;
+            
+            ['A', 'B', 'C', 'D'].forEach(groupName => {
+                let html = `
+                    <div class="card">
+                        <h3 style="margin-top: 0; color: white; display: flex; align-items: center;">
+    Gruppe ${groupName} 
+    <button onclick="renameGroup('${groupName}')" style="background: transparent; border: none; color: #b967ff; cursor: pointer; font-size: 1rem; margin-left: 10px;" title="Gruppe umbenennen">
+        <i class="fa-solid fa-pen"></i>
+    </button>
+</h3>
+                        <div class="group-grid-row group-header-row">
+                            <span>Team</span><span>S</span><span>N</span><span>RD</span><span>Pkt</span><span>Weiter?</span>
+                        </div>`;
+                
+                gruppen[groupName].forEach((team, i) => {
+                    html += `
+                        <div class="group-grid-row">
+                            <input type="text" class="t-name" value="${team.team}" onchange="updateGroup('${groupName}', ${i}, 'team', this.value)">
+                            <input type="number" value="${team.s}" onchange="updateGroup('${groupName}', ${i}, 's', parseInt(this.value))">
+                            <input type="number" value="${team.n}" onchange="updateGroup('${groupName}', ${i}, 'n', parseInt(this.value))">
+                            <input type="text" value="${team.rd}" onchange="updateGroup('${groupName}', ${i}, 'rd', this.value)">
+                            <input type="number" value="${team.pkt}" onchange="updateGroup('${groupName}', ${i}, 'pkt', parseInt(this.value))">
+                            <input type="checkbox" ${team.advancing ? 'checked' : ''} onchange="updateGroup('${groupName}', ${i}, 'advancing', this.checked)">
+                        </div>`;
+                });
+                container.innerHTML += html + `</div>`;
+            });
+        }
+
+        function renderBracket(containerId, keys) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const matches = tData.tournaments[activeTournamentIndex].matches;
+            
+            keys.forEach(key => {
+                const match = matches[key];
+                let label = key.toUpperCase().replace(/_/g, ' '); 
+                
+                container.innerHTML += `
+                    <div class="match-card">
+                        <div style="font-size: 0.85rem; color: #a0a0b0; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;">${label}</div>
+                        <div class="bracket-match-row"><input type="text" class="t-name" value="${match.team1}" placeholder="Team 1" onchange="updateMatch('${key}', 'team1', this.value)"><input type="text" style="text-align: center; font-weight: bold;" value="${match.score1}" onchange="updateMatch('${key}', 'score1', this.value)"></div>
+                        <div class="bracket-match-row"><input type="text" class="t-name" value="${match.team2}" placeholder="Team 2" onchange="updateMatch('${key}', 'team2', this.value)"><input type="text" style="text-align: center; font-weight: bold;" value="${match.score2}" onchange="updateMatch('${key}', 'score2', this.value)"></div>
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.9rem; color: #a0a0b0;">Gewinner:</span>
+                            <select onchange="updateMatch('${key}', 'winner', parseInt(this.value))" style="flex: 1; padding: 6px;">
+                                <option value="0" ${match.winner === 0 ? 'selected' : ''}>Noch offen</option>
+                                <option value="1" ${match.winner === 1 ? 'selected' : ''}>Team 1</option>
+                                <option value="2" ${match.winner === 2 ? 'selected' : ''}>Team 2</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateGroup(group, index, field, value) { tData.tournaments[activeTournamentIndex].gruppen[group][index][field] = value; }
+        function updateMatch(key, field, value) { tData.tournaments[activeTournamentIndex].matches[key][field] = value; }
+
+        function saveData() {
+            const btn = document.getElementById('saveBtn');
+            btn.innerText = "⏳ Speichere...";
+            fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tData, null, 4) })
+            .then(() => {
+                btn.innerText = "✅ Erfolgreich gespeichert!";
+                btn.style.background = "#28a745";
+                setTimeout(() => { btn.innerText = "💾 Alles Speichern & Live schalten"; btn.style.background = "linear-gradient(135deg, #007bff, #8a2be2)"; }, 3000);
+            });
+        }
+
+
+        function renderGroups() {
+            const container = document.getElementById('groups-editor');
+            container.innerHTML = '';
+            const gruppen = tData.tournaments[activeTournamentIndex].gruppen;
+            
+            // Wir lesen dynamisch alle existierenden Gruppen aus, statt fest A, B, C, D zu nehmen
+            Object.keys(gruppen).forEach(groupName => {
+                let html = `
+                    <div class="card">
+                        <button class="delete-btn" onclick="removeGroup('${groupName}')" title="Ganze Gruppe löschen"><i class="fa-solid fa-trash"></i></button>
+                        <h3 style="margin-top: 0; color: white; display: flex; align-items: center;">
+    ${groupName} 
+    <button onclick="renameGroup('${groupName}')" style="background: transparent; border: none; color: #b967ff; cursor: pointer; font-size: 1rem; margin-left: 10px;" title="Gruppe umbenennen">
+        <i class="fa-solid fa-pen"></i>
+    </button>
+</h3>
+                        
+                        <div class="group-grid-row group-header-row" style="grid-template-columns: 2.5fr 1fr 1fr 1.2fr 1fr 1fr 30px;">
+                            <span>Team</span><span>S</span><span>N</span><span>RD</span><span>Pkt</span><span>Weiter?</span><span></span>
+                        </div>`;
+                
+                // Teams generieren
+                gruppen[groupName].forEach((team, i) => {
+                    html += `
+                        <div class="group-grid-row" style="grid-template-columns: 2.5fr 1fr 1fr 1.2fr 1fr 1fr 30px;">
+                            <input type="text" class="t-name" value="${team.team}" onchange="updateGroup('${groupName}', ${i}, 'team', this.value)">
+                            <input type="number" value="${team.s}" onchange="updateGroup('${groupName}', ${i}, 's', parseInt(this.value))">
+                            <input type="number" value="${team.n}" onchange="updateGroup('${groupName}', ${i}, 'n', parseInt(this.value))">
+                            <input type="text" value="${team.rd}" onchange="updateGroup('${groupName}', ${i}, 'rd', this.value)">
+                            <input type="number" value="${team.pkt}" onchange="updateGroup('${groupName}', ${i}, 'pkt', parseInt(this.value))">
+                            <input type="checkbox" ${team.advancing ? 'checked' : ''} onchange="updateGroup('${groupName}', ${i}, 'advancing', this.checked)">
+                            
+                            <button onclick="removeTeamFromGroup('${groupName}', ${i})" style="background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 1.1rem;" title="Team entfernen">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>`;
+                });
+                
+                // "Team hinzufügen" Button am Ende jeder Gruppe
+                html += `
+                        <button onclick="addTeamToGroup('${groupName}')" style="margin-top: 15px; width: 100%; background: #2a2a35; color: white; border: 1px dashed #8a2be2; padding: 8px; border-radius: 4px; cursor: pointer; transition: 0.3s;">
+                            + Neues Team hinzufügen
+                        </button>
+                    </div>`;
+                    
+                container.innerHTML += html;
+            });
+
+            // "Neue Gruppe" Kachel am Ende
+            container.innerHTML += `
+                <div style="display: flex; align-items: center; justify-content: center; min-height: 200px;">
+                    <button onclick="addNewGroup()" style="background: #15151a; color: #b967ff; border: 2px dashed #8a2be2; padding: 20px; border-radius: 8px; cursor: pointer; height: 100%; width: 100%; font-weight: bold; transition: 0.3s;">
+                        <i class="fa-solid fa-plus fa-2x" style="display: block; margin-bottom: 10px;"></i>
+                        Neue Gruppe erstellen
+                    </button>
+                </div>
+            `;
+        }
+
+        // --- NEUE HILFSFUNKTIONEN ---
+
+        function addTeamToGroup(groupName) {
+            tData.tournaments[activeTournamentIndex].gruppen[groupName].push({
+                team: "", s: 0, n: 0, rd: "0", pkt: 0, advancing: false
+            });
+            renderGroups();
+        }
+
+        function removeTeamFromGroup(groupName, teamIndex) {
+            tData.tournaments[activeTournamentIndex].gruppen[groupName].splice(teamIndex, 1);
+            renderGroups();
+        }
+
+        function addNewGroup() {
+            const gruppen = tData.tournaments[activeTournamentIndex].gruppen;
+            const existingGroups = Object.keys(gruppen);
+            let nextChar = 'A';
+
+            // Findet den nächsten freien Buchstaben (Nach D kommt E)
+            if (existingGroups.length > 0) {
+                const lastChar = existingGroups[existingGroups.length - 1];
+                nextChar = String.fromCharCode(lastChar.charCodeAt(0) + 1);
+            }
+
+            gruppen[nextChar] = [];
+            // Standardmäßig mit 4 leeren Teams füllen
+            for(let i=0; i<4; i++) {
+                gruppen[nextChar].push({team:"", s:0, n:0, rd:"0", pkt:0, advancing:false});
+            }
+            renderGroups();
+        }
+
+        function removeGroup(groupName) {
+            if(confirm(`Möchtest du die komplette Gruppe ${groupName} wirklich löschen?`)) {
+                delete tData.tournaments[activeTournamentIndex].gruppen[groupName];
+                renderGroups();
+            }
+        }
+
+        function renameGroup(oldName) {
+            // Stylisches Pop-up (Overlay) erstellen
+            const overlay = document.createElement('div');
+            overlay.id = 'rename-modal-overlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);';
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'background: #15151a; padding: 25px; border-radius: 12px; border: 1px solid #8a2be2; width: 320px; box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3); text-align: center; font-family: sans-serif;';
+            
+            modal.innerHTML = `
+                <h3 style="margin-top: 0; color: white; margin-bottom: 10px;">Gruppe umbenennen</h3>
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Aktueller Name: <b style="color: white;">${oldName}</b></p>
+                
+                <input type="text" id="new-group-name" value="${oldName}" style="width: 100%; box-sizing: border-box; background: #2a2a35; color: white; border: 1px solid #555; border-radius: 6px; padding: 12px; margin-bottom: 25px; font-size: 1.1rem; outline: none; transition: border 0.3s;" onfocus="this.style.border='1px solid #b967ff'" onblur="this.style.border='1px solid #555'">
+                
+                <div style="display: flex; justify-content: space-between; gap: 12px;">
+                    <button onclick="closeRenameModal()" style="flex: 1; background: transparent; border: 1px solid #555; color: #ccc; padding: 10px; border-radius: 6px; cursor: pointer; transition: background 0.3s;" onmouseover="this.style.background='#2a2a35'" onmouseout="this.style.background='transparent'">Abbrechen</button>
+                    <button onclick="confirmRename('${oldName}')" style="flex: 1; background: #8a2be2; border: none; color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#7522c1'" onmouseout="this.style.background='#8a2be2'">Speichern</button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Fokus direkt auf das Eingabefeld setzen, damit man sofort tippen kann
+            setTimeout(() => {
+                const input = document.getElementById('new-group-name');
+                input.focus();
+                input.select(); // Markiert den alten Text, damit man ihn sofort überschreiben kann
+            }, 100);
+        }
+
+        function closeRenameModal() {
+            const overlay = document.getElementById('rename-modal-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        function confirmRename(oldName) {
+            const input = document.getElementById('new-group-name');
+            if (!input) return;
+            
+            let newName = input.value.trim();
+            
+            // Wenn nichts eingegeben wurde oder der Name gleich ist -> abbrechen
+            if (!newName || newName === oldName) {
+                closeRenameModal();
+                return;
+            }
+
+            const gruppen = tData.tournaments[activeTournamentIndex].gruppen;
+
+            // Prüfen, ob der neue Name schon vergeben ist
+            if (gruppen[newName]) {
+                alert("Fehler: Es existiert bereits eine Gruppe mit genau diesem Namen!");
+                return;
+            }
+
+            // Gruppen neu aufbauen, um Reihenfolge zu behalten
+            const newGruppen = {};
+            for (let key in gruppen) {
+                if (key === oldName) {
+                    newGruppen[newName] = gruppen[key];
+                } else {
+                    newGruppen[key] = gruppen[key];
+                }
+            }
+
+            // Daten speichern und UI aktualisieren
+            tData.tournaments[activeTournamentIndex].gruppen = newGruppen;
+            closeRenameModal();
+            renderGroups();
+        }
+    </script>
+</body>
+</html>

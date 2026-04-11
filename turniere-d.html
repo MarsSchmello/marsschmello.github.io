@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turniere | SynapseX</title>
+    <link rel="icon" type="image/jpeg" href="image/Leonardo_Phoenix_09_Create_a_stylized_logo_for_the_esports_tea_3.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="video-overlay"></div>
+
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        
+        <section style="min-height: auto; padding-top: 80px;">
+            <h1 class="section-title">SynapseX <span style="background: linear-gradient(135deg, #00e5ff, #9d4edd); background-clip: text; -webkit-text-fill-color: transparent;">Turniere</span></h1>
+            <p class="text-block">Willkommen in unserer eigenen Liga. Hier findest du alle Informationen zu unseren gehosteten Turnieren und Preisgeldern.</p>
+
+            <div class="tournament-info-box" style="text-align: center; padding: 60px 30px;">
+                <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;">
+                    <i class="fa-solid fa-power-off"></i>
+                </div>
+                <h2 style="font-size: 2.5rem; color: #fff; margin-bottom: 15px; text-transform: uppercase;">Off-Season</h2>
+                <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 30px auto; line-height: 1.6;">
+                    Aktuell findet kein aktives Turnier statt. Unsere Teams befinden sich in der Trainingsphase oder wir bereiten das nächste große Event vor.
+                </p>
+                <div class="info-details" style="justify-content: center; margin-bottom: 30px;">
+                    <p><i class="fa-solid fa-calendar-question"></i> <strong>Nächstes Turnier:</strong> Wird bald angekündigt</p>
+                </div>
+                <a href="https://discord.gg/3BuS9w4xru" target="_blank" class="btn" style="font-size: 1.2rem; padding: 15px 40px;">
+                    <i class="fa-brands fa-discord"></i> &nbsp;Tritt dem Discord bei für Updates
+                </a>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Sidebar laden
+        if (typeof loadSidebar === "function") {
+            loadSidebar('');
+        }
+    </script>
+</body>
+</html>
